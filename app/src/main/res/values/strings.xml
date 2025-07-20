@@ -2,4 +2,6 @@
     <string name="app_name">MayeosGlyphToys</string>
     <string name="toy_name_angle">Angle Finder</string>
     <string name="toy_summary_angle">Acute or Obtuse?</string>
+    <string name="toy_name_rest">REST API</string>
+    <string name="toy_summary_rest">REST on GlyphMatrix</string>
 </resources>
