@@ -94,8 +94,8 @@ abstract class GlyphMatrixService(private val tag: String) : Service() {
 
     open fun onTouchPointReleased() {}
 
-    private companion object {
-        private val LOG_TAG = GlyphMatrixService::class.java.simpleName
+    companion object {
+        val LOG_TAG = GlyphMatrixService::class.java.simpleName
         private const val KEY_DATA = "data"
     }
 }

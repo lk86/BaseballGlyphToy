@@ -1,39 +1,129 @@
 package com.mayeoinbread.mayeosglyphtoys
 
 import android.content.Context
-import android.util.Log
+import android.os.Handler
+import android.os.Looper
 import com.nothing.ketchum.GlyphMatrixManager
 import kotlinx.coroutines.*
+import kotlinx.coroutines.Runnable
 import org.json.JSONObject
-import java.net.HttpURLConnection
 import java.net.URL
 
 class RestGlyphService : GlyphMatrixService("Rest-Glyph") {
 
-    companion object {
-        private const val GLYPH_LENGTH = 25
+    private lateinit var appContext: Context
 
-        private val font3x5 = mapOf(
-            '0' to listOf("111", "101", "101", "101", "111"),
-            '1' to listOf("010", "110", "010", "010", "111"),
-            '2' to listOf("111", "001", "111", "100", "111"),
-            '3' to listOf("111", "001", "111", "001", "111"),
-            '4' to listOf("101", "101", "111", "001", "001"),
-            '5' to listOf("111", "100", "111", "001", "111"),
-            '6' to listOf("111", "100", "111", "101", "111"),
-            '7' to listOf("111", "001", "010", "010", "010"),
-            '8' to listOf("111", "101", "111", "101", "111"),
-            '9' to listOf("111", "101", "111", "001", "111"),
-            '-' to listOf("000", "000", "111", "000", "000"),
-            ':' to listOf("0", "1", "0", "1", "0"),
-            ' ' to listOf("000", "000", "000", "000", "000"),
-            'L' to listOf("100", "100", "100", "100", "111"),
-            'B' to listOf("110", "101", "110", "101", "110"),
-            'E' to listOf("111", "100", "111", "100", "111"),
-            'r' to listOf("000", "000", "110", "100", "100"),
-            'o' to listOf("000", "000", "111", "101", "111"),
-            'S' to listOf("011", "100", "010", "001", "110"),
-            'K' to listOf("101", "101", "110", "101", "101")
+    private val handler = Handler(Looper.getMainLooper())
+    private var roomData: List<Pair<String, String>> = emptyList()
+    private var scrollIndex = 0
+    private var frameCounter = 0
+    private val scrollSpeed = 3
+    private var currentRoomIndex = 0
+    private var roomName = "LOADING..."
+    private var temperature = "--°C"
+    private val scrollDelay = 200L  // milliseconds
+    private val matrix = IntArray(DrawUtils.SCREEN_LENGTH * DrawUtils.SCREEN_LENGTH)
+
+    private var apiUrl = ""
+
+    private val prefsName = "rest_glyph_prefs"
+    private val keyRoomIndex = "currentRoomIndex"
+
+    override fun performOnServiceConnected(
+        context: Context,
+        glyphMatrixManager: GlyphMatrixManager
+    ) {
+        appContext = context
+        loadUserPreferences(context)
+
+        fetchTemperature()
+        startScrolling()
+    }
+
+    private fun loadUserPreferences(context: Context) {
+        val prefs = context.getSharedPreferences(prefsName, Context.MODE_PRIVATE)
+        apiUrl = prefs.getString("api_url", "") ?: ""
+        currentRoomIndex = prefs.getInt(keyRoomIndex, 0)
+//        val showTemp = prefs.getBoolean("show_temp", true)
+//        val showHumidity = prefs.getBoolean("show_humidity", false)
+    }
+
+    override fun onTouchPointLongPress() {
+        if (roomData.isEmpty()) return
+        currentRoomIndex = (currentRoomIndex + 1) % roomData.size
+
+        appContext.getSharedPreferences(prefsName, Context.MODE_PRIVATE)?.edit()?.apply {
+            putInt(keyRoomIndex, currentRoomIndex)
+            apply()
+        }
+
+        updateRoomAndDraw()
+        scrollIndex = 0
+        drawFrame()
+    }
+
+    private fun startScrolling() {
+        handler.post(object : Runnable {
+            override fun run() {
+                drawFrame()
+                handler.postDelayed(this, scrollDelay)
+            }
+        })
+    }
+
+    private fun drawFrame() {
+        matrix.fill(0)
+        DrawUtils.drawScrollingTextCharacterWise(
+            matrix,
+            roomName,
+            scrollIndex,
+            5,
+            4,
+            512
         )
+        val totalWidth = temperature.length * (DrawUtils.CHAR_WIDTH + DrawUtils.SPACING) - DrawUtils.SPACING
+        val baseX = (DrawUtils.SCREEN_LENGTH - totalWidth) / 2
+        DrawUtils.drawNormalText(
+            matrix,
+            temperature,
+            baseX,
+            DrawUtils.SCREEN_LENGTH - DrawUtils.CHAR_HEIGHT - 3,
+            1024
+        )
+        glyphMatrixManager?.setMatrixFrame(matrix)
+
+        frameCounter++
+        if (frameCounter >= scrollSpeed) {
+            scrollIndex = (scrollIndex + 1) % (roomName.length + 3)
+            frameCounter = 0
+        }
+    }
+
+    private fun fetchTemperature() {
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                val response = URL(apiUrl).readText()
+                val json = JSONObject(response)
+
+                val list = mutableListOf<Pair<String, String>>()
+                for (key in json.keys()) {
+                    val arr = json.getJSONArray(key)
+                    val value = arr.getDouble(0)
+                    list.add(key to String.format("%.0f°C", value))
+                }
+
+                roomData = list
+                updateRoomAndDraw()
+            } catch (e: Exception) {
+                e.printStackTrace()
+                roomData = listOf("ERROR" to "--°C")
+            }
+        }
+    }
+
+    private fun updateRoomAndDraw() {
+        val (name, value) = roomData.getOrElse(currentRoomIndex) {"ERROR" to "-°C"}
+        roomName = name.uppercase()
+        temperature = value
     }
 }

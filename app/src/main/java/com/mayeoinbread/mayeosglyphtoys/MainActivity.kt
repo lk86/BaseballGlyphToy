@@ -1,47 +1,117 @@
 package com.mayeoinbread.mayeosglyphtoys
 
+import android.content.Context
+import android.content.SharedPreferences
 import android.os.Bundle
+import android.widget.CheckBox
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBars
+import androidx.compose.foundation.layout.systemBarsPadding
+import androidx.compose.material3.Button
+import androidx.compose.material3.Checkbox
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.darkColorScheme
+import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import androidx.core.view.WindowCompat
 import com.mayeoinbread.mayeosglyphtoys.ui.theme.MayeosGlyphToysTheme
 
 class MainActivity : ComponentActivity() {
+
+    private val prefsName = "rest_glyph_prefs"
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
+        WindowCompat.setDecorFitsSystemWindows(window, true)
         setContent {
             MayeosGlyphToysTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
-                }
+                GlyphSettingsScreen(
+                    context = this,
+                    prefs = getSharedPreferences(prefsName, Context.MODE_PRIVATE)
+                )
             }
         }
     }
 }
 
 @Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
+fun GlyphSettingsScreen(context: Context, prefs: SharedPreferences) {
 
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    MayeosGlyphToysTheme {
-        Greeting("Android")
+    val isDarkTheme = isSystemInDarkTheme()
+
+    var apiUrl by remember { mutableStateOf(prefs.getString("api_url", "") ?: "") }
+    var showTemp by remember { mutableStateOf(prefs.getBoolean("show_temp", true)) }
+    var showHumidity by remember { mutableStateOf(prefs.getBoolean("show_humidity", false)) }
+
+    MaterialTheme (
+        colorScheme = if (isDarkTheme) darkColorScheme() else lightColorScheme()
+    ) {
+        Surface (
+            modifier = Modifier
+                .fillMaxSize(),
+            color = MaterialTheme.colorScheme.background
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .systemBarsPadding()
+                    .padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp),
+            ) {
+                OutlinedTextField(
+                    value = apiUrl,
+                    onValueChange = { apiUrl = it},
+                    label = { Text("API URL") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Checkbox(checked = showTemp, onCheckedChange = { showTemp = it })
+                    Text("Show Temperature", modifier = Modifier.padding(start = 8.dp))
+                }
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Checkbox(checked = showHumidity, onCheckedChange = { showHumidity = it })
+                    Text("Show Humidity", modifier = Modifier.padding(start = 8.dp))
+                }
+
+                Button(
+                    onClick = {
+                        prefs.edit()
+                            .putString("api_url", apiUrl)
+                            .putBoolean("show_temp", showTemp)
+                            .putBoolean("show_humidity", showHumidity)
+                            .apply()
+                        Toast.makeText(context, "Settings saved", Toast.LENGTH_SHORT).show()
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text("Save")
+                }
+            }
+        }
     }
 }
