@@ -102,7 +102,7 @@ object DrawUtils {
         brightness: Int,
         rotate: Boolean = false
     ) {
-        val fullText = "$text   $text   "
+        val fullText = "$text  $text  "
         val displayableChars = SCREEN_LENGTH / (3 + SPACING)
 
         val visibleText = fullText.drop(scrollIndex).take(displayableChars)
@@ -141,6 +141,12 @@ object DrawUtils {
         ':' to listOf("0", "1", "0", "1", "0"),
         ' ' to listOf("000", "000", "000", "000", "000"),
         '.' to listOf("000", "000", "000", "000", "010"),
+        '|' to listOf("010", "010", "010", "010", "010"),
+        '\'' to listOf("010", "010", "000", "000", "000"),
+        '&' to listOf("010", "101", "010", "101", "011"),
+        '(' to listOf("010", "100", "100", "100", "010"),
+        ')' to listOf("010", "001", "001", "001", "010"),
+        '#' to listOf("101", "111", "101", "111", "101"),
         'A' to listOf("010", "101", "111", "101", "101"),
         'B' to listOf("110", "101", "110", "101", "110"),
         'C' to listOf("010", "101", "100", "101", "010"),
@@ -161,8 +167,8 @@ object DrawUtils {
         'R' to listOf("110", "101", "110", "101", "101"),
         'S' to listOf("011", "100", "010", "001", "110"),
         'T' to listOf("111", "010", "010", "010", "010"),
-        'U' to listOf("101", "101", "101", "101", "010"),
-        'V' to listOf("101", "101", "101", "101", "111"),
+        'U' to listOf("101", "101", "101", "101", "011"),
+        'V' to listOf("101", "101", "101", "101", "010"),
         'W' to listOf("101", "101", "101", "111", "111"),
         'X' to listOf("101", "101", "010", "101", "101"),
         'Y' to listOf("101", "101", "010", "010", "010"),

@@ -4,4 +4,6 @@
     <string name="toy_summary_angle">Acute or Obtuse?</string>
     <string name="toy_name_rest">REST API</string>
     <string name="toy_summary_rest">REST on GlyphMatrix</string>
+    <string name="toy_name_nowplaying">Now Playing</string>
+    <string name="toy_summary_nowplaying">What\'s it called again?</string>
 </resources>

@@ -21,13 +21,12 @@ abstract class GlyphMatrixService(private val tag: String) : Service() {
             when (msg.what) {
                 GlyphToy.MSG_GLYPH_TOY -> {
                     msg.data?.let { data ->
-                        if (data.containsKey(KEY_DATA)) {
-                            data.getString(KEY_DATA)?.let { value ->
-                                when (value) {
-                                    GlyphToy.EVENT_ACTION_DOWN -> onTouchPointPressed()
-                                    GlyphToy.EVENT_ACTION_UP -> onTouchPointReleased()
-                                    GlyphToy.EVENT_CHANGE -> onTouchPointLongPress()
-                                }
+                        data.getString(GlyphToy.MSG_GLYPH_TOY_DATA)?.let { value ->
+                            when (value) {
+                                GlyphToy.EVENT_ACTION_DOWN -> onTouchPointPressed()
+                                GlyphToy.EVENT_ACTION_UP -> onTouchPointReleased()
+                                GlyphToy.EVENT_CHANGE -> onTouchPointLongPress()
+                                GlyphToy.EVENT_AOD -> onAodUpdate()
                             }
                         }
                     }
@@ -94,8 +93,9 @@ abstract class GlyphMatrixService(private val tag: String) : Service() {
 
     open fun onTouchPointReleased() {}
 
+    open fun onAodUpdate() {}
+
     companion object {
-        val LOG_TAG = GlyphMatrixService::class.java.simpleName
-        private const val KEY_DATA = "data"
+        val LOG_TAG: String = GlyphMatrixService::class.java.simpleName
     }
 }
