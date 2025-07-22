@@ -12,8 +12,8 @@ Find the angle of a tilted surface by placing the phone on its edge (with the vo
 
 GlyphMatrix will show the angle, and a line matching the horizontal.
 
-![AngleGlyph Flat](/imgs/AngleGlyph_Flat.jpg)
-![AngleGlyph Tilt](/imgs/AngleGlyph_Tilt.jpg)
+<img src="imgs/AngleGlyph_Flat.jpg" width="300" height="400" alt="AngleGlyph when (mostly) flat">
+<img src="imgs/AngleGlyph_Tilt.jpg" width="300" height="400" alt="AngleGlyph when at an angle">
 
 ## REST API
 Display info collected from a REST API. Currently built for use with a home automation setup to show temperatures from different rooms, but hoping to generalise it in future.
@@ -22,7 +22,7 @@ Room name scrolls across the screen, while the temperature remains static.
 
 Utilises the Long Press on the Glyph button to cycle between rooms.
 
-![RestGlyph Kitchen Temperature](/imgs/RestGlyph.jpg)
+<img src="imgs/RestGlyph.jpg" width="300" height="400" alt="Rest Glyph showing Kitchen temperature">
 
 Sample JSON structure this works with (second value, humidity, is not used):
 
