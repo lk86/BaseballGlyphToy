@@ -1,6 +1,10 @@
 # Mayeo's GlyphMatrix Toys
 Some toys to be used with the GlyphMatrix on the Nothing Phone 3. All still heavily beta, being worked on in my spare time.
 
+This is the source code only, there is no final "app" yet. The repo must be cloned and opened in Android Studio, then built onto a Nothing Phone 3.
+
+There is a lot of tidying up, and proper utilisation of the GlyphMatrix Developer Kit needed.
+
 # Current Toys
 
 ## Angle Finder
