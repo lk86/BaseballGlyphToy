@@ -44,8 +44,6 @@ class RestGlyphService : GlyphMatrixService("Rest-Glyph") {
         val prefs = context.getSharedPreferences(prefsName, Context.MODE_PRIVATE)
         apiUrl = prefs.getString("api_url", "") ?: ""
         currentRoomIndex = prefs.getInt(keyRoomIndex, 0)
-//        val showTemp = prefs.getBoolean("show_temp", true)
-//        val showHumidity = prefs.getBoolean("show_humidity", false)
     }
 
     override fun onTouchPointLongPress() {

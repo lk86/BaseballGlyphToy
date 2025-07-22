@@ -12,14 +12,11 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBarsPadding
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
-import androidx.compose.material3.Checkbox
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
@@ -31,9 +28,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.core.view.WindowCompat
 import com.mayeoinbread.mayeosglyphtoys.ui.theme.MayeosGlyphToysTheme
@@ -64,7 +59,7 @@ class MainActivity : ComponentActivity() {
 
 fun isNotificationServiceEnabled(context: Context): Boolean {
     val cn = ComponentName(context, NowPlayingGlyphService::class.java)
-    val flat = android.provider.Settings.Secure.getString(
+    val flat = Settings.Secure.getString(
         context.contentResolver,
         "enabled_notification_listeners"
     )
@@ -77,8 +72,6 @@ fun GlyphSettingsScreen(context: Context, prefs: SharedPreferences) {
     val isDarkTheme = isSystemInDarkTheme()
 
     var apiUrl by remember { mutableStateOf(prefs.getString("api_url", "") ?: "") }
-    var showTemp by remember { mutableStateOf(prefs.getBoolean("show_temp", true)) }
-    var showHumidity by remember { mutableStateOf(prefs.getBoolean("show_humidity", false)) }
 
     MaterialTheme (
         colorScheme = if (isDarkTheme) darkColorScheme() else lightColorScheme()
@@ -102,21 +95,10 @@ fun GlyphSettingsScreen(context: Context, prefs: SharedPreferences) {
                     modifier = Modifier.fillMaxWidth()
                 )
 
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Checkbox(checked = showTemp, onCheckedChange = { showTemp = it })
-                    Text("Show Temperature", modifier = Modifier.padding(start = 8.dp))
-                }
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Checkbox(checked = showHumidity, onCheckedChange = { showHumidity = it })
-                    Text("Show Humidity", modifier = Modifier.padding(start = 8.dp))
-                }
-
                 Button(
                     onClick = {
                         prefs.edit()
                             .putString("api_url", apiUrl)
-                            .putBoolean("show_temp", showTemp)
-                            .putBoolean("show_humidity", showHumidity)
                             .apply()
                         Toast.makeText(context, "Settings saved", Toast.LENGTH_SHORT).show()
                     },
