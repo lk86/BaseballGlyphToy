@@ -9,18 +9,18 @@ import android.os.Handler
 import android.os.Looper
 import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.text.toUpperCase
+import com.nothing.ketchum.GlyphMatrixFrame
 import com.nothing.ketchum.GlyphMatrixManager
 
 class NowPlayingGlyphService : GlyphMatrixService("NowPlaying-Glyph") {
 
     private val handler = Handler(Looper.getMainLooper())
     private var scrollIndex = 0
-    private var frameCounter = 0
-    private val scrollSpeed = 2
-    private val scrollDelay = 100L  // milliseconds
+    private val scrollDelay = 200L  // milliseconds
 
     private var currentTitle: String = ""
     private var currentArtist: String = ""
+    private var currentSource: String = ""
 
     private var mediaSessionManager: MediaSessionManager? = null
     private var mediaControllerCallback: MediaController.Callback? = null
@@ -32,41 +32,43 @@ class NowPlayingGlyphService : GlyphMatrixService("NowPlaying-Glyph") {
         glyphMatrixManager: GlyphMatrixManager
     ) {
         mediaSessionManager = context.getSystemService(Context.MEDIA_SESSION_SERVICE) as MediaSessionManager
-        val componentName = ComponentName(context, NowPlayingGlyphService::class.java)
+        val componentName = ComponentName(context, NowPlayingListenerService::class.java)
 
         val activeSessions = mediaSessionManager?.getActiveSessions(componentName) ?: emptyList()
 
         for (controller in activeSessions) {
             mediaControllerCallback = object : MediaController.Callback() {
                 override fun onMetadataChanged(metadata: MediaMetadata?) {
-                    metadata ?: return
-                    val artist = metadata.getString(MediaMetadata.METADATA_KEY_ARTIST) ?: return
-                    val title = metadata.getString(MediaMetadata.METADATA_KEY_TITLE) ?: return
+                    val source = controller.packageName.split(".")[1].first()
+                    val artist = metadata?.getString(MediaMetadata.METADATA_KEY_ARTIST) ?: ""
+                    val title = metadata?.getString(MediaMetadata.METADATA_KEY_TITLE) ?: ""
 
                     currentArtist = artist
                     currentTitle = title
+                    currentSource = source.uppercase()
                     startScrolling()
                 }
             }
             controller.registerCallback(mediaControllerCallback!!)
+
             // Immediately update if metadata already exists
             controller.metadata?.let { meta ->
                 currentArtist = meta.getString(MediaMetadata.METADATA_KEY_ARTIST) ?: ""
                 currentTitle = meta.getString(MediaMetadata.METADATA_KEY_TITLE) ?: ""
-                startScrolling()
+                currentSource = controller.packageName.split(".")[1].first().uppercase()
             }
+            // We need to call this so it still draws to the screen even if no metadata is present
+            startScrolling()
             break  // Just bind to the first valid session
         }
     }
 
-    override fun onAodUpdate() {
-        super.onAodUpdate()
-        DrawUtils.drawNormalText(matrix, "AOD_ACTIVE", 0, DrawUtils.SCREEN_CENTER.toInt(), 1024)
-    }
-
     override fun onDestroy() {
         super.onDestroy()
-        val componentName = ComponentName(this, NowPlayingGlyphService::class.java)
+
+        handler.removeCallbacks(scrollRunnable)
+
+        val componentName = ComponentName(this, NowPlayingListenerService::class.java)
         val sessions = mediaSessionManager?.getActiveSessions(componentName) ?: return
 
         // Unregister the callback
@@ -89,16 +91,58 @@ class NowPlayingGlyphService : GlyphMatrixService("NowPlaying-Glyph") {
         handler.post(scrollRunnable)
     }
 
+    override fun onAodUpdate() {
+        startScrolling()
+    }
+
     private fun drawNowPlaying() {
         matrix.fill(0)
-        val displayText = "$currentTitle - $currentArtist  |".toUpperCase(Locale.current)
-        DrawUtils.drawScrollingTextCharacterWise(matrix, displayText, scrollIndex, 0, DrawUtils.SCREEN_CENTER.toInt() - 1, 1024)
-        glyphMatrixManager?.setMatrixFrame(matrix)
+        // If there's no media playing, draw a notice on the screen
+        if (currentTitle == "" && currentArtist == "") {
+            DrawUtils.drawNormalText(
+                "NO",
+                DrawUtils.TextAlign.H_CENTER,
+                DrawUtils.TextAlign.BOTTOM_C,
+                1024,
+                1,
+                matrix
+            )
+            DrawUtils.drawNormalText(
+                "MUSIC",
+                DrawUtils.TextAlign.H_CENTER,
+                DrawUtils.TextAlign.TOP_C,
+                1024,
+                1,
+                matrix
+            )
+        } else {
+            if (currentSource != "") {
+                DrawUtils.drawNormalText(
+                    currentSource,
+                    DrawUtils.TextAlign.H_CENTER,
+                    DrawUtils.TextAlign.TOP,
+                    512,
+                    2,
+                    matrix)
+            }
+            val displayText = "$currentTitle - $currentArtist  |".toUpperCase(Locale.current)
+            DrawUtils.drawScrollingTextCharacterWise(
+                displayText,
+                scrollIndex,
+                DrawUtils.TextAlign.LEFT,
+                DrawUtils.TextAlign.V_CENTER,
+                1024,
+                matrix = matrix
+            )
 
-        frameCounter++
-        if(frameCounter >= scrollSpeed) {
             scrollIndex = (scrollIndex + 1) % (displayText.length + 2)
-            frameCounter = 0
         }
+
+        // User FrameBuilder so we can try adding Music App icon to background
+        val frame = GlyphMatrixFrame.Builder()
+            .addMid(matrix)
+            .build(applicationContext)
+
+        glyphMatrixManager?.setMatrixFrame(frame.render())
     }
 }

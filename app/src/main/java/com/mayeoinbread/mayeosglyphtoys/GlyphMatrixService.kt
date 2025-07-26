@@ -93,7 +93,9 @@ abstract class GlyphMatrixService(private val tag: String) : Service() {
 
     open fun onTouchPointReleased() {}
 
-    open fun onAodUpdate() {}
+    open fun onAodUpdate() {
+        Log.d(LOG_TAG, "$tag: onAodUpdate")
+    }
 
     companion object {
         val LOG_TAG: String = GlyphMatrixService::class.java.simpleName

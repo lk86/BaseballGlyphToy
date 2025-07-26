@@ -64,7 +64,7 @@
                 android:resource="@string/toy_name_rest" />
             <meta-data
                 android:name="com.nothing.glyph.toy.image"
-                android:resource="@drawable/rest_glyph" />
+                android:resource="@drawable/rest_api_glyph" />
             <meta-data
                 android:name="com.nothing.glyph.toy.summary"
                 android:resource="@string/toy_summary_rest" />
@@ -76,11 +76,7 @@
         <service
             android:name=".NowPlayingGlyphService"
             android:exported="true"
-            android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE"
             tools:ignore="ExportedService">
-            <intent-filter>
-                <action android:name="android.service.notification.NotificationListenerService"/>
-            </intent-filter>
 
             <intent-filter>
                 <action android:name="com.nothing.glyph.TOY"/>
@@ -91,13 +87,23 @@
                 android:resource="@string/toy_name_nowplaying" />
             <meta-data
                 android:name="com.nothing.glyph.toy.image"
-                android:resource="@drawable/nowplaying_glyph" />
+                android:resource="@drawable/now_playing_glyph" />
             <meta-data
                 android:name="com.nothing.glyph.toy.summary"
                 android:resource="@string/toy_summary_nowplaying" />
             <meta-data
                 android:name="com.nothing.glyph.toy.aod_support"
                 android:value="1"/>
+        </service>
+
+        <service
+            android:name=".NowPlayingListenerService"
+            android:label="Now Playing Access"
+            android:exported="false"
+            android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE">
+            <intent-filter>
+                <action android:name="android.service.notification.NotificationListenerService"/>
+            </intent-filter>
         </service>
     </application>
 

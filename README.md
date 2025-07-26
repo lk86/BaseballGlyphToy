@@ -3,7 +3,9 @@ Some toys to be used with the GlyphMatrix on the Nothing Phone 3. All still heav
 
 This is the source code only, there is no final "app" yet. The repo must be cloned and opened in Android Studio, then built onto a Nothing Phone 3.
 
-There is a lot of tidying up, and proper utilisation of the GlyphMatrix Developer Kit needed.
+Bit of tidying up needed but the first three GlyphToys are working.
+
+All these Toys use a custom 3x5 font to fit a bit more info onto the screen, allowing a bit more flexibility with things.
 
 # Current Toys
 
@@ -16,30 +18,24 @@ GlyphMatrix will show the angle, and a line matching the horizontal.
 <img src="imgs/AngleGlyph_Tilt.jpg" width="300" height="400" alt="AngleGlyph when at an angle">
 
 ## REST API
-Display info collected from a REST API. Currently built for use with a home automation setup to show temperatures from different rooms, but hoping to generalise it in future.
+Display info collected from a REST API.
 
-Room name scrolls across the screen, while the temperature remains static.
+In the Main app, you set the REST API endpoint (web address) and press "Fetch". The app will display a flattened list of all the available fields, where you can select the ones you want to be displayed.
 
-Utilises the Long Press on the Glyph button to cycle between rooms.
+On the Glyph Toy itself, it will display one of the fields plus its value at a time. The field name will scroll across the screen, and the value remain static (this was built to display temperatures, will add some smarts to scroll the values if they are wider than the screen).
+
+You can cycle through the fields by using the Long Press functionality of the Glyph button.
 
 <img src="imgs/RestGlyph.jpg" width="300" height="400" alt="Rest Glyph showing Kitchen temperature">
-
-Sample JSON structure this works with (second value, humidity, is not used):
-
-```
-{
-  "Room1": [21, 65],
-  "Room2": [19, 55],
-  "Room3": [23, 70]
-}
-```
 
 ## Now Playing
 Show the song title and artist for the currently playing song.
 
-Text will scroll across the GlyphMatrix screen.
+Text will scroll across the GlyphMatrix screen, and the first letter of the app that's playing the music will show at the top.
 
-This supports AOD, but is definitely using things outside what was intended, and can lead to issues with the GlyphMatrix display.
+Might try to add a symbol/icon instead? Maybe faded over the whole screen?
+
+This supports the AOD functionality, though song/title updating might be delayed slightly.
 
 # Other things
 
@@ -48,6 +44,7 @@ This supports AOD, but is definitely using things outside what was intended, and
 A utility object (that may be useful to others) that helps draw to the screen:
 - Static, scrolling, and rotated text (using 3x5 characters)
 - Line drawing
+- Shape drawing (currently rectangle)
 - More to be added
 
 
