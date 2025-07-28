@@ -11,6 +11,8 @@ import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.text.toUpperCase
 import com.nothing.ketchum.GlyphMatrixFrame
 import com.nothing.ketchum.GlyphMatrixManager
+import com.nothing.ketchum.GlyphMatrixObject
+import com.nothing.ketchum.GlyphMatrixUtils
 
 class NowPlayingGlyphService : GlyphMatrixService("NowPlaying-Glyph") {
 
@@ -27,6 +29,20 @@ class NowPlayingGlyphService : GlyphMatrixService("NowPlaying-Glyph") {
 
     private val matrix = IntArray(DrawUtils.SCREEN_LENGTH * DrawUtils.SCREEN_LENGTH)
 
+    private val appLogo = mapOf(
+        "com.amazon.mp3" to R.drawable.amazon_music_logo,
+        "com.apple.android.music" to R.drawable.apple_music_logo,
+        "com.android.chrome" to R.drawable.chrome_logo,
+        "deezer.android.app" to R.drawable.deezer_logo,
+        "com.microsoft.emmx" to R.drawable.edge_logo,
+        "org.mozilla.firefox" to R.drawable.firefox_logo,
+        "com.opera.browser" to R.drawable.opera_logo,
+        "com.soundcloud.android" to R.drawable.soundcloud_logo,
+        "com.spotify.music" to R.drawable.spotify_logo,
+        "com.google.android.youtube" to R.drawable.youtube_logo,
+        "com.google.android.apps.youtube.music" to R.drawable.youtube_music_logo
+    )
+
     override fun performOnServiceConnected(
         context: Context,
         glyphMatrixManager: GlyphMatrixManager
@@ -39,13 +55,13 @@ class NowPlayingGlyphService : GlyphMatrixService("NowPlaying-Glyph") {
         for (controller in activeSessions) {
             mediaControllerCallback = object : MediaController.Callback() {
                 override fun onMetadataChanged(metadata: MediaMetadata?) {
-                    val source = controller.packageName.split(".")[1].first()
+                    val source = controller.packageName
                     val artist = metadata?.getString(MediaMetadata.METADATA_KEY_ARTIST) ?: ""
                     val title = metadata?.getString(MediaMetadata.METADATA_KEY_TITLE) ?: ""
 
                     currentArtist = artist
                     currentTitle = title
-                    currentSource = source.uppercase()
+                    currentSource = source
                     startScrolling()
                 }
             }
@@ -55,7 +71,7 @@ class NowPlayingGlyphService : GlyphMatrixService("NowPlaying-Glyph") {
             controller.metadata?.let { meta ->
                 currentArtist = meta.getString(MediaMetadata.METADATA_KEY_ARTIST) ?: ""
                 currentTitle = meta.getString(MediaMetadata.METADATA_KEY_TITLE) ?: ""
-                currentSource = controller.packageName.split(".")[1].first().uppercase()
+                currentSource = controller.packageName
             }
             // We need to call this so it still draws to the screen even if no metadata is present
             startScrolling()
@@ -97,6 +113,8 @@ class NowPlayingGlyphService : GlyphMatrixService("NowPlaying-Glyph") {
 
     private fun drawNowPlaying() {
         matrix.fill(0)
+        val frameBuilder = GlyphMatrixFrame.Builder()
+
         // If there's no media playing, draw a notice on the screen
         if (currentTitle == "" && currentArtist == "") {
             DrawUtils.drawNormalText(
@@ -116,15 +134,7 @@ class NowPlayingGlyphService : GlyphMatrixService("NowPlaying-Glyph") {
                 matrix
             )
         } else {
-            if (currentSource != "") {
-                DrawUtils.drawNormalText(
-                    currentSource,
-                    DrawUtils.TextAlign.H_CENTER,
-                    DrawUtils.TextAlign.TOP,
-                    512,
-                    2,
-                    matrix)
-            }
+            // Display the song title + artist
             val displayText = "$currentTitle - $currentArtist  |".toUpperCase(Locale.current)
             DrawUtils.drawScrollingTextCharacterWise(
                 displayText,
@@ -136,12 +146,56 @@ class NowPlayingGlyphService : GlyphMatrixService("NowPlaying-Glyph") {
             )
 
             scrollIndex = (scrollIndex + 1) % (displayText.length + 2)
+
+            val tMatrix = IntArray(DrawUtils.SCREEN_LENGTH * DrawUtils.SCREEN_LENGTH)
+
+            val appLogoDrawableRes = appLogo[currentSource]
+
+            val logoFrame = if (appLogoDrawableRes != null) {
+                val drawable = try {
+                    resources.getDrawable(appLogoDrawableRes, null)
+                } catch (e: Exception) {
+                    null
+                }
+
+                drawable?.let {
+                    GlyphMatrixObject.Builder()
+                        .setImageSource(GlyphMatrixUtils.drawableToBitmap(it))
+                        .setScale(100)
+                        .setOrientation(0)
+                        .setPosition(0, 0)
+                        .setBrightness(32)
+                        .build()
+                }
+            } else {
+                val parts = currentSource.split(".")
+                val fallbackChar = when {
+                    parts.isEmpty() -> '?'
+                    parts[0] != "com" -> parts[0].firstOrNull()?.uppercaseChar() ?: '?'
+                    parts.size > 1 -> parts[1].firstOrNull()?.uppercaseChar() ?: '?'
+                    else -> '?'
+                }
+                DrawUtils.drawNormalText(
+                    fallbackChar.toString(),
+                    DrawUtils.TextAlign.H_CENTER,
+                    DrawUtils.TextAlign.TOP,
+                    512,
+                    2,
+                    tMatrix
+                )
+                null
+            }
+
+            if (logoFrame != null) {
+                frameBuilder.addLow(logoFrame)
+            } else {
+                frameBuilder.addLow(tMatrix)
+            }
         }
 
-        // User FrameBuilder so we can try adding Music App icon to background
-        val frame = GlyphMatrixFrame.Builder()
-            .addMid(matrix)
-            .build(applicationContext)
+        frameBuilder.addMid(matrix)
+
+        val frame = frameBuilder.build(applicationContext)
 
         glyphMatrixManager?.setMatrixFrame(frame.render())
     }

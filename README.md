@@ -50,3 +50,11 @@ A utility object (that may be useful to others) that helps draw to the screen:
 
 # References
 Some help from the sample Toys in the [GlyphMatrix Developer Kit](https://github.com/Nothing-Developer-Programme/GlyphMatrix-Developer-Kit/tree/main), and a little ChatGPT
+
+
+# Disclaimer
+This project is not affiliated with, endorsed by, or sponsored by any of the companies or services referenced herein.
+
+All logos, app icons, and trademarks used in this application are the property of their respective owners. They are used here for identification purposes only to enhance user experience.
+
+If you are a rights holder and have concerns about the usage of your assets in this project, please contact the developer for prompt removal or revision.
