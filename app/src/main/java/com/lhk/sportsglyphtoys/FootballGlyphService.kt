@@ -14,15 +14,15 @@ import java.time.Instant
 import org.json.JSONObject
 import java.net.URL
 
-class BaseballGlyphService : GlyphMatrixService("Baseball-Glyph") {
+class FootballGlyphService : GlyphMatrixService("Football-Glyph") {
 
     private lateinit var appContext: Context
 
     private val handler = Handler(Looper.getMainLooper())
-    private var gameData : Map<String, String> = emptyMap()
+    private var gameData: Map<String, String> = emptyMap()
     private var scrollIndex = 0
 
-    private var gameInning = ""
+    private var gamePeriod = ""
     private var gameName = "LOADING"
     private var gameScore = "..."
     private val scrollDelay = 200L  // milliseconds
@@ -45,7 +45,12 @@ class BaseballGlyphService : GlyphMatrixService("Baseball-Glyph") {
 
     private fun loadUserPreferences(context: Context) {
         val prefs = context.getSharedPreferences(prefsName, MODE_PRIVATE)
-        apiTeam = prefs.getString("mlb_team", "137") ?: "" // Default value here is being used when it shouldn't be
+        apiTeam = prefs.getString("nfl_team", "137") ?: "" // Default value here is being used when it shouldn't be
+    }
+
+    override fun onTouchPointPressed() {
+        fetchData()
+        drawFrame()
     }
 
     override fun onTouchPointLongPress() {
@@ -70,7 +75,7 @@ class BaseballGlyphService : GlyphMatrixService("Baseball-Glyph") {
     private fun drawFrame() {
         matrix.fill(0)
         DrawUtils.drawNormalText(
-            gameInning,
+            gamePeriod,
             DrawUtils.TextAlign.H_CENTER,
             DrawUtils.TextAlign.TOP,
             1024,
@@ -79,14 +84,14 @@ class BaseballGlyphService : GlyphMatrixService("Baseball-Glyph") {
         )
 
         if (gameName.length > 6) {
-        DrawUtils.drawScrollingTextCharacterWise(
-            gameName,
-            scrollIndex,
-            DrawUtils.TextAlign.LEFT,
-            DrawUtils.TextAlign.V_CENTER,
-            512,
-            matrix = matrix
-        )
+            DrawUtils.drawScrollingTextCharacterWise(
+                gameName,
+                scrollIndex,
+                DrawUtils.TextAlign.LEFT,
+                DrawUtils.TextAlign.V_CENTER,
+                512,
+                matrix = matrix
+            )
         } else {
             DrawUtils.drawNormalText(
                 gameName,
@@ -115,61 +120,6 @@ class BaseballGlyphService : GlyphMatrixService("Baseball-Glyph") {
         scrollIndex = (scrollIndex + 1) % (gameName.length + 2)
     }
 
-    private fun convertOutsToGlyph(outs: String, first: Boolean, second: Boolean, third: Boolean): Char {
-        if (outs == "3") {
-            return '_'
-        } else if (outs == "0") {
-            if (!first && !second && !third) {
-                return 'a'
-            } else if (first && !second && !third) {
-                return 'b'
-            } else if (!first && second && !third) {
-                return 'c'
-            } else if (!first && !second && third) {
-                return 'd'
-            } else if (first && second && !third) {
-                return 'e'
-            } else if (!first && second && third) {
-                return 'f'
-            } else if (first && second && third) {
-                return 'g'
-            }
-        } else if (outs == "1") {
-            if (!first && !second && !third) {
-                return 'h'
-            } else if (first && !second && !third) {
-                return 'i'
-            } else if (!first && second && !third) {
-                return 'j'
-            } else if (!first && !second && third) {
-                return 'k'
-            } else if (first && second && !third) {
-                return 'l'
-            } else if (!first && second && third) {
-                return 'm'
-            } else if (first && second && third) {
-                return 'n'
-            }
-        } else if (outs == "2") {
-            if (!first && !second && !third) {
-                return 'o'
-            } else if (first && !second && !third) {
-                return 'p'
-            } else if (!first && second && !third) {
-                return 'q'
-            } else if (!first && !second && third) {
-                return 'r'
-            } else if (first && second && !third) {
-                return 's'
-            } else if (!first && second && third) {
-                return 't'
-            } else if (first && second && third) {
-                return 'u'
-            }
-        }
-        return 'E'
-    }
-
     private fun fetchData() {
         CoroutineScope(Dispatchers.IO).launch {
             try {
@@ -179,19 +129,17 @@ class BaseballGlyphService : GlyphMatrixService("Baseball-Glyph") {
                 val json = URL(url).readText()
                 val flat = flattenJson(JSONObject(json))
 
-                val gameCount = flat.getOrDefault("dates[0].totalGames", "0")
+                val gameCount = flat.getValue("dates[0].totalGames")
                 if (gameCount == "0") {
-                    gameData = mapOf("name" to "NO GAME", "inning" to "-", "score" to "0-0")
+                    gameData = mapOf("name" to "NO GAME", "period" to "-", "score" to "0-0")
                 } else if (gameCount == "1") {
                     val gameIndex = 0
-                    val status = flat.getOrDefault("dates[0].games[$gameIndex].status.detailedState", "Final")
-                    val statusCode = flat.getOrDefault("dates[0].games[$gameIndex].status.statusCode", "E")
+                    val status = flat.getValue("dates[0].games[$gameIndex].status.detailedState")
+                    val statusCode = flat.getOrDefault("dates[0].games[0].status.statusCode", "E")
                     val away =
-                        flat.getOrDefault("dates[0].games[$gameIndex].teams.away.team.name", "NYY")
-                            .filter { it.isUpperCase() }
+                        flat.getValue("dates[0].games[$gameIndex].teams.away.team.name").filter { it.isUpperCase() }
                     val home =
-                        flat.getOrDefault("dates[0].games[$gameIndex].teams.home.team.name", "NYM")
-                            .filter { it.isUpperCase() }
+                        flat.getValue("dates[0].games[$gameIndex].teams.home.team.name").filter { it.isUpperCase() }
                     val away2Digits = away.take(2)
                     val home2Digits = home.take(2)
                     val gameName: String = if (away2Digits == home2Digits) {
@@ -206,27 +154,28 @@ class BaseballGlyphService : GlyphMatrixService("Baseball-Glyph") {
                                     .atZone(ZoneId.systemDefault())
                             val gameHour = gameTime.hour.toString()
                             val gameMinute = gameTime.minute.toString()
-                            gameData = mapOf("name" to gameName, "inning" to statusCode, "score" to "$gameHour:$gameMinute")
+                            gameData =
+                                mapOf("name" to gameName, "period" to statusCode, "score" to "$gameHour:$gameMinute")
                         }
 
                         "Final" -> {
-                            val awayScore = flat.getOrDefault("dates[0].games[$gameIndex].teams.away.score", "0")
-                            val homeScore = flat.getOrDefault("dates[0].games[$gameIndex].teams.home.score", "10")
-                            val homeTeamID = flat.getOrDefault("dates[0].games[$gameIndex].teams.home.team.id", "137")
-                            val awayTeamID = flat.getOrDefault("dates[0].games[$gameIndex].teams.away.team.id", "0")
-                            val inning =
+                            val awayScore = flat.getValue("dates[0].games[$gameIndex].teams.away.score")
+                            val homeScore = flat.getValue("dates[0].games[$gameIndex].teams.home.score")
+                            val homeTeamID = flat.getValue("dates[0].games[$gameIndex].teams.home.team.id")
+                            val awayTeamID = flat.getValue("dates[0].games[$gameIndex].teams.away.team.id")
+                            val period =
                                 if (apiTeam == homeTeamID) { // Favorite Team is Home
-                                    if (homeScore.toInt() > awayScore.toInt()) {
+                                    if (homeScore > awayScore) {
                                         "W"
-                                    } else if (awayScore.toInt() > homeScore.toInt()) {
+                                    } else if (awayScore > homeScore) {
                                         "L"
                                     } else {
                                         "T"
                                     }
                                 } else if (apiTeam == awayTeamID) { // Favorite Team is Away
-                                    if (awayScore.toInt() > homeScore.toInt()) {
+                                    if (awayScore > homeScore) {
                                         "W"
-                                    } else if (homeScore.toInt() > awayScore.toInt()) {
+                                    } else if (homeScore > awayScore) {
                                         "L"
                                     } else {
                                         "T"
@@ -234,12 +183,27 @@ class BaseballGlyphService : GlyphMatrixService("Baseball-Glyph") {
                                 } else { // Can't figure out which team is favorite
                                     "E"
                                 }
-                            gameData = mapOf("name" to gameName, "inning" to inning, "score" to "$awayScore-$homeScore")
+                            gameData = mapOf("name" to gameName, "period" to period, "score" to "$awayScore-$homeScore")
+                        }
+
+                        "Delayed" -> {
+                            val timeText =
+                                if (flat.getValue("dates[0].games[$gameIndex].status.startTimeTBD") == "true") {
+                                    "TBD"
+                                } else {
+                                    val gameTime =
+                                        Instant.parse(flat.getValue("dates[0].games[$gameIndex].gameDate"))
+                                            .atZone(ZoneId.systemDefault())
+                                    val gameHour = gameTime.hour.toString()
+                                    val gameMinute = gameTime.minute.toString()
+                                    "$gameHour:$gameMinute"
+                                }
+                            gameData = mapOf("name" to gameName, "period" to statusCode, "score" to timeText)
                         }
 
                         "In Progress" -> {
-                            val awayRuns = flat.getOrDefault("dates[0].games[$gameIndex].teams.away.score", "-")
-                            val homeRuns = flat.getOrDefault("dates[0].games[$gameIndex].teams.home.score", "-")
+                            val awayScore = flat.getValue("dates[0].games[$gameIndex].teams.away.score")
+                            val homeScore = flat.getValue("dates[0].games[$gameIndex].teams.home.score")
                             val gamePk = flat.getValue("dates[0].games[$gameIndex].gamePk")
                             val linescoreUrl =
                                 "https://statsapi.mlb.com/api/v1/game/$gamePk/linescore"
@@ -247,40 +211,24 @@ class BaseballGlyphService : GlyphMatrixService("Baseball-Glyph") {
                             val linescoreFlat = flattenJson(JSONObject(linescoreJSON))
 
                             val period = linescoreFlat.getValue("currentInning")
-                            val tOrB = linescoreFlat.getValue("inningState").filter { it.isUpperCase() }
-                            val vOrCaret = when (tOrB) {
-                                "T" -> "^"
-                                "B" -> "v"
-                                "M" -> "@"
-                                "E" -> "."
-                                else -> "E"
-                            }
-                            val first = linescoreFlat.getOrDefault("offense.first.id", "")
-                            val second = linescoreFlat.getOrDefault("offense.second.id", "")
-                            val third = linescoreFlat.getOrDefault("offense.third.id", "")
-                            val glyph = convertOutsToGlyph(
-                                linescoreFlat.getValue("outs"),
-                                !first.isEmpty(),
-                                !second.isEmpty(),
-                                !third.isEmpty()
-                            )
+
                             gameData =
                                 mapOf(
                                     "name" to gameName,
-                                    "inning" to "${vOrCaret}${period}${glyph}",
-                                    "score" to "$awayRuns-$homeRuns"
+                                    "period" to period,
+                                    "score" to "$awayScore-$homeScore"
                                 )
                         }
 
                         else -> {
-                            gameData = mapOf("name" to gameName, "inning" to statusCode, "score" to status)
+                            gameData = mapOf("name" to gameName, "period" to statusCode, "score" to "ERR")
                         }
                     }
                     updateValues()
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
-                gameData = mapOf("name" to "EXCEPTION", "inning" to "-", "score" to "ERR")
+                gameData = mapOf("name" to "EXCEPTION", "period" to "-", "score" to "ERR")
                 updateValues()
             }
         }
@@ -288,7 +236,7 @@ class BaseballGlyphService : GlyphMatrixService("Baseball-Glyph") {
 
     private fun updateValues() {
         gameName = gameData.getOrDefault("name", "ERROR")
-        gameInning = gameData.getOrDefault("inning", "ERROR")
+        gamePeriod = gameData.getOrDefault("period", "ERROR")
         gameScore = gameData.getOrDefault("score", "ERROR")
     }
 }

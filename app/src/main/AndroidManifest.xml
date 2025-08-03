@@ -38,13 +38,37 @@
             </intent-filter>
             <meta-data
                 android:name="com.nothing.glyph.toy.name"
-                android:resource="@string/toy_name_sports" />
+                android:resource="@string/toy_name_baseball"/>
             <meta-data
                 android:name="com.nothing.glyph.toy.image"
                 android:resource="@drawable/rest_api_glyph" />
             <meta-data
                 android:name="com.nothing.glyph.toy.summary"
-                android:resource="@string/toy_summary_sports" />
+                android:resource="@string/toy_summary_baseball"/>
+            <meta-data
+                android:name="com.nothing.glyph.toy.longpress"
+                android:value="1"/>
+            <meta-data
+                android:name="com.nothing.glyph.toy.aod_support"
+                android:value="1"/>
+        </service>
+
+        <service
+            android:name=".FootballGlyphService"
+            android:exported="true"
+            tools:ignore="ExportedService">
+            <intent-filter>
+                <action android:name="com.nothing.glyph.TOY"/>
+            </intent-filter>
+            <meta-data
+                android:name="com.nothing.glyph.toy.name"
+                android:resource="@string/toy_name_football"/>
+            <meta-data
+                android:name="com.nothing.glyph.toy.image"
+                android:resource="@drawable/rest_api_glyph"/>
+            <meta-data
+                android:name="com.nothing.glyph.toy.summary"
+                android:resource="@string/toy_summary_football"/>
             <meta-data
                 android:name="com.nothing.glyph.toy.longpress"
                 android:value="1"/>
