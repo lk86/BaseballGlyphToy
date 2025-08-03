@@ -10,6 +10,70 @@ import java.net.HttpURLConnection
 import java.net.URL
 
 object DataUtils {
+
+    fun fetchTeams(url: String, onResult: (Map<String, String>) -> Unit) {
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                val connection = URL(url).openConnection() as HttpURLConnection
+                connection.connectTimeout = 5000
+                connection.readTimeout = 5000
+
+                val response = connection.inputStream.bufferedReader().readText()
+                val json = JSONObject(response)
+                val flattened = flattenTeams(json)
+
+                withContext(Dispatchers.Main) {
+                    onResult(flattened)
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+                withContext(Dispatchers.Main) {
+                    onResult(emptyMap())  // gracefully degrade
+                }
+            }
+        }
+    }
+
+    fun flattenTeams(
+        jsonObject: JSONObject,
+        prefix: String = "",
+        result: MutableMap<String, String> = mutableMapOf()
+    ): Map<String, String> {
+        val keys = jsonObject.keys()
+        while (keys.hasNext()) {
+            val key = keys.next()
+            val value = jsonObject.get(key)
+            val newKey = if (prefix.isEmpty()) key else "$prefix.$key"
+            when (value) {
+                is JSONObject -> flattenTeams(value, newKey, result)
+                is JSONArray -> {
+                    for (i in 0 until value.length()) {
+                        val element = value.get(i)
+                        val arrayKey = "$newKey[$i]"
+                        when (element) {
+                            is JSONObject -> {
+                                result[element.getString("name")] = element.getString("id")
+                            }
+
+                            is Number -> {
+                                result[arrayKey] = roundNumber(element)
+                            }
+
+                            else -> {
+                                result[arrayKey] = element.toString()
+                            }
+                        }
+                    }
+                }
+
+                is Number -> result[newKey] = roundNumber(value)
+                else -> result[newKey] = value.toString()
+            }
+        }
+        return result
+    }
+
+
     fun fetchAndFlattenJson(url: String, onResult: (Map<String, String>) -> Unit) {
         CoroutineScope(Dispatchers.IO).launch {
             try {

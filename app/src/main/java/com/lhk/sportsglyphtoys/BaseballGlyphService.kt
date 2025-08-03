@@ -45,7 +45,7 @@ class BaseballGlyphService : GlyphMatrixService("Baseball-Glyph") {
 
     private fun loadUserPreferences(context: Context) {
         val prefs = context.getSharedPreferences(prefsName, MODE_PRIVATE)
-        apiTeam = prefs.getString("mlb_team", "121") ?: "" // Default value here is being used when it shouldn't be
+        apiTeam = prefs.getString("mlb_team_id", "") ?: "" // Default value here is being used when it shouldn't be
     }
 
     override fun onTouchPointLongPress() {
@@ -74,7 +74,7 @@ class BaseballGlyphService : GlyphMatrixService("Baseball-Glyph") {
             DrawUtils.TextAlign.H_CENTER,
             DrawUtils.TextAlign.TOP,
             1024,
-            1,
+            2,
             matrix
         )
 
@@ -93,7 +93,7 @@ class BaseballGlyphService : GlyphMatrixService("Baseball-Glyph") {
                 DrawUtils.TextAlign.H_CENTER,
                 DrawUtils.TextAlign.V_CENTER,
                 512,
-                1,
+                2,
                 matrix = matrix
             )
         }
@@ -103,7 +103,7 @@ class BaseballGlyphService : GlyphMatrixService("Baseball-Glyph") {
             DrawUtils.TextAlign.H_CENTER,
             DrawUtils.TextAlign.BOTTOM,
             1024,
-            1,
+            2,
             matrix
         )
 
