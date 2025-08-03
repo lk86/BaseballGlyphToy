@@ -1,4 +1,4 @@
-package com.lhk.sportsglyphtoy
+package com.lhk.sportsglyphtoys
 
 import android.content.SharedPreferences
 import android.os.Bundle
@@ -23,7 +23,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.core.view.WindowCompat
-import com.lhk.sportsglyphtoy.ui.theme.SportsGlyphTheme
+import com.lhk.sportsglyphtoys.ui.theme.SportsGlyphTheme
 
 
 class MainActivity : ComponentActivity() {
@@ -49,9 +49,8 @@ fun GlyphSettingsScreen(prefs: SharedPreferences) {
 
     val isDarkTheme = isSystemInDarkTheme()
 
-    var apiKey by remember { mutableStateOf(prefs.getString("api_key", "sb11te7geey36bayvx7540d") ?: "") }
-    var apiTeam by remember { mutableStateOf(prefs.getString("api_team", "New York Mets") ?: "") }
-    var apiSport by remember { mutableStateOf(prefs.getString("api_sport", "mlb") ?: "") }
+    var mlbTeam by remember { mutableStateOf(prefs.getString("mlb_team", "137") ?: "") }
+    var nflTeam by remember { mutableStateOf(prefs.getString("nfl_team", "137") ?: "") }
 
     MaterialTheme (
         colorScheme = if (isDarkTheme) darkColorScheme() else lightColorScheme()
@@ -64,21 +63,15 @@ fun GlyphSettingsScreen(prefs: SharedPreferences) {
             Column(Modifier.fillMaxSize().padding(16.dp, 64.dp)) {
                 Text("Choose your Team", style = MaterialTheme.typography.titleMedium)
                 OutlinedTextField(
-                    value = apiKey,
-                    onValueChange = { apiKey = it},
-                    label = { Text("API Key") },
+                    value = mlbTeam,
+                    onValueChange = { mlbTeam = it},
+                    label = { Text("MLB Team") },
                     modifier = Modifier.fillMaxWidth()
                 )
                 OutlinedTextField(
-                    value = apiTeam,
-                    onValueChange = { apiTeam = it},
-                    label = { Text("Team") },
-                    modifier = Modifier.fillMaxWidth()
-                )
-                OutlinedTextField(
-                    value = apiSport,
-                    onValueChange = { apiSport = it},
-                    label = { Text("Sport") },
+                    value = nflTeam,
+                    onValueChange = { nflTeam = it},
+                    label = { Text("NFL Team") },
                     modifier = Modifier.fillMaxWidth()
                 )
             }

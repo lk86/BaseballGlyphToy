@@ -1,4 +1,4 @@
-package com.lhk.sportsglyphtoy
+package com.lhk.sportsglyphtoys
 
 import kotlin.math.abs
 

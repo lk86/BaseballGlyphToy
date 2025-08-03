@@ -1,4 +1,4 @@
-package com.lhk.sportsglyphtoy
+package com.lhk.sportsglyphtoys
 
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers

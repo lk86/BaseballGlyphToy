@@ -1,4 +1,4 @@
-package com.lhk.sportsglyphtoy.ui.theme
+package com.lhk.sportsglyphtoys.ui.theme
 
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme

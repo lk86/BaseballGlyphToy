@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">SportsGlyphToy</string>
-    <string name="toy_name_sports">Sports!</string>
-    <string name="toy_summary_sports">Sports on GlyphMatrix</string>
+    <string name="app_name">SportsGlyphToys</string>
+    <string name="toy_name_sports">Baseball!</string>
+    <string name="toy_summary_sports">Baseball on GlyphMatrix</string>
 </resources>

@@ -1,4 +1,4 @@
-package com.lhk.sportsglyphtoy.ui.theme
+package com.lhk.sportsglyphtoys.ui.theme
 
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle

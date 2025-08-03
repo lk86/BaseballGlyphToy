@@ -1,4 +1,4 @@
-package com.lhk.sportsglyphtoy
+package com.lhk.sportsglyphtoys
 
 import android.app.Service
 import android.content.ComponentName

@@ -6,11 +6,11 @@ plugins {
 }
 
 android {
-    namespace = "com.lhk.sportsglyphtoy"
+    namespace = "com.lhk.sportsglyphtoys"
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "com.lhk.sportsglyphtoy"
+        applicationId = "com.lhk.sportsglyphtoys"
         minSdk = 35
         targetSdk = 36
         versionCode = 1
