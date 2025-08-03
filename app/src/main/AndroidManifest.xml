@@ -22,7 +22,7 @@
             android:name=".MainActivity"
             android:exported="true"
             android:label="@string/app_name"
-            android:theme="@style/Theme.MayeosGlyphToys">
+            android:theme="@style/Theme.SportsGlyphTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -31,29 +31,7 @@
         </activity>
 
         <service
-            android:name=".AngleGlyphService"
-            android:exported="true"
-            tools:ignore="ExportedService">
-            <intent-filter>
-                <action android:name="com.nothing.glyph.TOY"/>
-            </intent-filter>
-
-            <meta-data
-                android:name="com.nothing.glyph.toy.name"
-                android:resource="@string/toy_name_angle" />
-            <meta-data
-                android:name="com.nothing.glyph.toy.image"
-                android:resource="@drawable/angle_finder_glyph" />
-            <meta-data
-                android:name="com.nothing.glyph.toy.summary"
-                android:resource="@string/toy_summary_angle" />
-            <meta-data
-                android:name="com.nothing.glyph.toy.aod_support"
-                android:value="1"/>
-        </service>
-
-        <service
-            android:name=".RestGlyphService"
+            android:name=".SportsGlyphService"
             android:exported="true"
             tools:ignore="ExportedService">
             <intent-filter>
@@ -61,50 +39,21 @@
             </intent-filter>
             <meta-data
                 android:name="com.nothing.glyph.toy.name"
-                android:resource="@string/toy_name_rest" />
+                android:resource="@string/toy_name_sports" />
             <meta-data
                 android:name="com.nothing.glyph.toy.image"
                 android:resource="@drawable/rest_api_glyph" />
             <meta-data
                 android:name="com.nothing.glyph.toy.summary"
-                android:resource="@string/toy_summary_rest" />
+                android:resource="@string/toy_summary_sports" />
             <meta-data
                 android:name="com.nothing.glyph.toy.longpress"
                 android:value="1"/>
-        </service>
-
-        <service
-            android:name=".NowPlayingGlyphService"
-            android:exported="true"
-            tools:ignore="ExportedService">
-
-            <intent-filter>
-                <action android:name="com.nothing.glyph.TOY"/>
-            </intent-filter>
-
-            <meta-data
-                android:name="com.nothing.glyph.toy.name"
-                android:resource="@string/toy_name_nowplaying" />
-            <meta-data
-                android:name="com.nothing.glyph.toy.image"
-                android:resource="@drawable/now_playing_glyph" />
-            <meta-data
-                android:name="com.nothing.glyph.toy.summary"
-                android:resource="@string/toy_summary_nowplaying" />
             <meta-data
                 android:name="com.nothing.glyph.toy.aod_support"
                 android:value="1"/>
         </service>
 
-        <service
-            android:name=".NowPlayingListenerService"
-            android:label="Now Playing Access"
-            android:exported="false"
-            android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE">
-            <intent-filter>
-                <action android:name="android.service.notification.NotificationListenerService"/>
-            </intent-filter>
-        </service>
     </application>
 
 </manifest>

@@ -1,9 +1,5 @@
 <resources>
-    <string name="app_name">MayeosGlyphToys</string>
-    <string name="toy_name_angle">Angle Finder</string>
-    <string name="toy_summary_angle">Acute or Obtuse?</string>
-    <string name="toy_name_rest">REST API</string>
-    <string name="toy_summary_rest">REST on GlyphMatrix</string>
-    <string name="toy_name_nowplaying">Now Playing</string>
-    <string name="toy_summary_nowplaying">What\'s it called again?</string>
+    <string name="app_name">SportsGlyphToy</string>
+    <string name="toy_name_sports">Sports!</string>
+    <string name="toy_summary_sports">Sports on GlyphMatrix</string>
 </resources>

@@ -1,4 +1,4 @@
-package com.mayeoinbread.mayeosglyphtoys
+package com.lhk.sportsglyphtoy
 
 import android.app.Service
 import android.content.ComponentName

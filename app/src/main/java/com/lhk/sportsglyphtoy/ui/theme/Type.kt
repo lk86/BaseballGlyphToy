@@ -1,4 +1,4 @@
-package com.mayeoinbread.mayeosglyphtoys.ui.theme
+package com.lhk.sportsglyphtoy.ui.theme
 
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle

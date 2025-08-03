@@ -1,3 +1,4 @@
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -5,11 +6,11 @@ plugins {
 }
 
 android {
-    namespace = "com.mayeoinbread.mayeosglyphtoys"
+    namespace = "com.lhk.sportsglyphtoy"
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "com.mayeoinbread.mayeosglyphtoys"
+        applicationId = "com.lhk.sportsglyphtoy"
         minSdk = 35
         targetSdk = 36
         versionCode = 1
