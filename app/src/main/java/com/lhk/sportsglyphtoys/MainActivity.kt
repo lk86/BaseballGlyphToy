@@ -49,8 +49,8 @@ fun GlyphSettingsScreen(prefs: SharedPreferences) {
 
     val isDarkTheme = isSystemInDarkTheme()
 
-    var mlbTeam by remember { mutableStateOf(prefs.getString("mlb_team", "137") ?: "") }
-    var nflTeam by remember { mutableStateOf(prefs.getString("nfl_team", "137") ?: "") }
+    var mlbTeam by remember { mutableStateOf(prefs.getString("mlb_team", "121") ?: "") }
+    var nflTeam by remember { mutableStateOf(prefs.getString("nfl_team", "121") ?: "") }
 
     MaterialTheme (
         colorScheme = if (isDarkTheme) darkColorScheme() else lightColorScheme()

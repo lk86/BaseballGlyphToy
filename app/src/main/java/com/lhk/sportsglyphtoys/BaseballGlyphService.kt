@@ -45,7 +45,7 @@ class BaseballGlyphService : GlyphMatrixService("Baseball-Glyph") {
 
     private fun loadUserPreferences(context: Context) {
         val prefs = context.getSharedPreferences(prefsName, MODE_PRIVATE)
-        apiTeam = prefs.getString("mlb_team", "137") ?: "" // Default value here is being used when it shouldn't be
+        apiTeam = prefs.getString("mlb_team", "121") ?: "" // Default value here is being used when it shouldn't be
     }
 
     override fun onTouchPointLongPress() {
@@ -212,7 +212,7 @@ class BaseballGlyphService : GlyphMatrixService("Baseball-Glyph") {
                         "Final" -> {
                             val awayScore = flat.getOrDefault("dates[0].games[$gameIndex].teams.away.score", "0")
                             val homeScore = flat.getOrDefault("dates[0].games[$gameIndex].teams.home.score", "10")
-                            val homeTeamID = flat.getOrDefault("dates[0].games[$gameIndex].teams.home.team.id", "137")
+                            val homeTeamID = flat.getOrDefault("dates[0].games[$gameIndex].teams.home.team.id", "121")
                             val awayTeamID = flat.getOrDefault("dates[0].games[$gameIndex].teams.away.team.id", "0")
                             val inning =
                                 if (apiTeam == homeTeamID) { // Favorite Team is Home
