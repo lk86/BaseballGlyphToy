@@ -212,6 +212,7 @@ class BaseballGlyphService : GlyphMatrixService("Baseball-Glyph") {
                         } else {
                             "$away2Digits@$home2Digits"
                         }
+                        gameData = emptyList()
                         when (status) {
                             "Preview" -> {
                                 val gameTime =
