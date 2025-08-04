@@ -50,6 +50,13 @@ class BaseballGlyphService : GlyphMatrixService("Baseball-Glyph") {
         apiTeam = prefs.getString("mlb_team_id", "") ?: "" // Default value here is being used when it shouldn't be
     }
 
+    override fun onTouchPointPressed() {
+        if (gameData.isEmpty()) return
+        updateValues()
+        scrollIndex = 0
+        drawFrame()
+    }
+
     override fun onTouchPointLongPress() {
         if (gameData.isEmpty()) return
         currentKeyIndex = (currentKeyIndex + 1) % gameData.size
@@ -196,7 +203,8 @@ class BaseballGlyphService : GlyphMatrixService("Baseball-Glyph") {
                     gameData = emptyList()
                     gameData += (mapOf("name" to "NO GAME", "inning" to "-", "score" to "0-0"))
                 } else {
-                    for (gameIndex in 0..gameCount.toInt()) {
+                    gameData = emptyList()
+                    for (gameIndex in 0..<gameCount.toInt()) {
                         val status = flat.getOrDefault("dates[0].games[$gameIndex].status.abstractGameState", "Final")
                         val statusCode = flat.getOrDefault("dates[0].games[$gameIndex].status.statusCode", "E")
                         val away =
@@ -212,7 +220,6 @@ class BaseballGlyphService : GlyphMatrixService("Baseball-Glyph") {
                         } else {
                             "$away2Digits@$home2Digits"
                         }
-                        gameData = emptyList()
                         when (status) {
                             "Preview" -> {
                                 val gameTime =
