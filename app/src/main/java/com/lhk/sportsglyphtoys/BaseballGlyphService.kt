@@ -184,7 +184,7 @@ class BaseballGlyphService : GlyphMatrixService("Baseball-Glyph") {
                     gameData = mapOf("name" to "NO GAME", "inning" to "-", "score" to "0-0")
                 } else if (gameCount == "1") {
                     val gameIndex = 0
-                    val status = flat.getOrDefault("dates[0].games[$gameIndex].status.detailedState", "Final")
+                    val status = flat.getOrDefault("dates[0].games[$gameIndex].status.abstractGameState", "Final")
                     val statusCode = flat.getOrDefault("dates[0].games[$gameIndex].status.statusCode", "E")
                     val away =
                         flat.getOrDefault("dates[0].games[$gameIndex].teams.away.team.name", "NYY")
@@ -200,7 +200,7 @@ class BaseballGlyphService : GlyphMatrixService("Baseball-Glyph") {
                         "$away2Digits@$home2Digits"
                     }
                     when (status) {
-                        "Scheduled" -> {
+                        "Preview" -> {
                             val gameTime =
                                 Instant.parse(flat.getValue("dates[0].games[$gameIndex].gameDate"))
                                     .atZone(ZoneId.systemDefault())
@@ -237,7 +237,7 @@ class BaseballGlyphService : GlyphMatrixService("Baseball-Glyph") {
                             gameData = mapOf("name" to gameName, "inning" to inning, "score" to "$awayScore-$homeScore")
                         }
 
-                        "In Progress" -> {
+                        "Live" -> {
                             val awayRuns = flat.getOrDefault("dates[0].games[$gameIndex].teams.away.score", "-")
                             val homeRuns = flat.getOrDefault("dates[0].games[$gameIndex].teams.home.score", "-")
                             val gamePk = flat.getValue("dates[0].games[$gameIndex].gamePk")
