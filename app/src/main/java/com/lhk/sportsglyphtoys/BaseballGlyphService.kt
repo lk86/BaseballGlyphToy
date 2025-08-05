@@ -303,7 +303,6 @@ class BaseballGlyphService : GlyphMatrixService("Baseball-Glyph") {
                             }
 
                             else -> {
-                                gameData = emptyList()
                                 gameData += mapOf("name" to gameName, "inning" to statusCode, "score" to status)
                             }
                         }
@@ -312,9 +311,9 @@ class BaseballGlyphService : GlyphMatrixService("Baseball-Glyph") {
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
-                gameData = emptyList()
-                gameData += mapOf("name" to "EXCEPTION", "inning" to "-", "score" to "ERR")
-                updateValues()
+                // gameData = emptyList()
+                // gameData += mapOf("name" to "EXCEPTION", "inning" to "-", "score" to "ERR")
+                // updateValues()
             }
         }
     }
